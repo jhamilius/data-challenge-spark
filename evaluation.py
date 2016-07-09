@@ -15,11 +15,13 @@ from pyspark import SparkContext
 from pyspark import SparkFiles
 from functools import partial
 from pyspark.ml.feature import NGram
-from pyspark.mllib.feature import Word2Vec
+
 
 trainF="./data/train" #the path to where the train data is
 
 sc = SparkContext(appName=" \--(o_o)--/ ")  #initialize the spark context
+
+
 #since we are not in the command line interface we need to add to the spark context
 #some of our classes so that they are available to the workers
 sc.addFile("/home/julien.hamilius/datacamp/code/helpers.py") 
@@ -29,20 +31,15 @@ from helpers import *
 import extract_terms as et
 
 
-
-
-
 # load data : data is a list with the text per doc in each cell. Y is the respective class value
 #1 :positive , 0 negative
 print "loading local data"
 data,Y=lf.loadLabeled(trainF) 
 
+
 print "preprocessing"
 pp.proc(data) #clean up the data from  number, html tags, punctuations (except for "?!." ...."?!" are replaced by "."
 m = TfidfVectorizer(analyzer=et.terms) # m is a compressed matrix with the tfidf matrix the terms are extracted with our own custom function 
-
-# word2vec = Word2Vec()
-# m = Word2Vec().fit(analyzer=et.terms)
 
 
 '''
@@ -50,6 +47,8 @@ we need an array to distribute to the workers ...
 the array should be the same size as the number of workers
 we need one element per worker only
 '''
+
+
 ex=np.zeros(8) 
 rp=randint(0,7)
 ex[rp]=1 #one random worker will be selected so we set one random element to non-zero
@@ -57,10 +56,14 @@ ex[rp]=1 #one random worker will be selected so we set one random element to non
 md=sc.broadcast(m) #broadcast the vectorizer so that he will be available to all workers
 datad=sc.broadcast(data) # broadcast the data
 
+
+
 #execute vectorizer in one random  remote machine 
 #partial is a python function that calls a function and can assign partially some of the parameters 
 #numSlices determins how mnay partitions should the data have
 #numslices is also helpfull if we want to reduce the size of each task for each worker
+
+
 tmpRDD=sc.parallelize(ex,numSlices=8).filter(lambda x: x!=0).map(partial(compute, model=md, data=datad))
 print "transforming the data in a remote machine"
 data=tmpRDD.collect() # get back the coordinate matrix and the fitted vectorizer
