@@ -90,6 +90,22 @@ bY=sc.broadcast(Y) #broadcast the class variable (in order to create labeled poi
 #we need this information to convert to vectors and label point the coordinate data
 cols=sc.broadcast(len(m.get_feature_names())) 
 
+rows=sc.broadcast(len(Y)) 
+comb2 = (lambda x,y : np.vstack([np.array(x),np.array(y)]))
+tmp2=ttodp.map(lambda x : (x[2],(x[0],x[1]))).aggregateByKey([0,0],comb2,comb2).map(partial(toVector, cols=rows)).map(lambda x : (x[0],chi2(np.array([x[1],x[1]]).T,np.array(bY.value)))).map(lambda x: (x[0],x[1][0][1])).collect()
+
+print "features selection"
+df = pd.DataFrame(tmp2) # transformer la liste de paires en dataframe   
+df = df.sort_values(by=[1], ascending=False) # trier le dataframe par valeur de chi2 descendante
+#PARAM
+nbfeat = 25000 #len(col_index)
+col_index = df.head(nbfeat)[0].values
+print "- nb total de col : "+str(len(df))
+print "- poids total des chi2 :"+str(df[1].sum(axis=0))
+print "- nb de col selectionnees : "+str(nbfeat)
+print "- poids selectionne :"+str(df[1][0:nbfeat].sum(axis=0))
+
+tmp=ttodp.filter(lambda x: x[2] in col_index).map(lambda x: (x[1],[(x[0],x[2])])).aggregateByKey([],comb,comb)
 
 
 print "number of features"+str(cols.value)
@@ -100,7 +116,7 @@ tmpLB=tmp.map(partial(createLabeledPoint,cSize=cols,classes=bY))
 
 
 print "splitting the data"
-train, test = tmpLB.randomSplit([0.75, 0.25], seed = 0)
+train, test = tmpLB.randomSplit([0.6, 0.4], seed = 0)
 print "training the machine learning algorithm"
 model = LogisticRegressionWithLBFGS.train(train, iterations=100, initialWeights=None, 
                                          regParam=0.01, regType='l2', intercept=True, 

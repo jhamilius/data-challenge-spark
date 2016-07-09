@@ -20,12 +20,12 @@ def terms(doc):
 	finder2.apply_freq_filter(3)
 	bigrams = finder2.nbest(bigram_measures.pmi, 200)
 
-	# finder3 = TrigramCollocationFinder.from_words(Terms)
-	# finder3.apply_freq_filter(3)
-	# trigrams = finder3.nbest(trigram_measures.chi_sq, 10)
+	finder3 = TrigramCollocationFinder.from_words(Terms)
+	finder3.apply_freq_filter(3)
+	trigrams = finder3.nbest(trigram_measures.chi_sq, 200)
 
 	Terms.extend(bigrams)
-	# Terms.extend(trigrams)
+	Terms.extend(trigrams)
 
 	return Terms
 #returns the terms found in one sentence
