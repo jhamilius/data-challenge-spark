@@ -39,10 +39,10 @@ data,Y=lf.loadLabeled(trainF)
 
 print "preprocessing"
 pp.proc(data) #clean up the data from  number, html tags, punctuations (except for "?!." ...."?!" are replaced by "."
-m = TfidfVectorizer(analyzer=et.terms) # m is a compressed matrix with the tfidf matrix the terms are extracted with our own custom function 
+# m = TfidfVectorizer(analyzer=et.terms) # m is a compressed matrix with the tfidf matrix the terms are extracted with our own custom function 
 
 # word2vec = Word2Vec()
-# m2 = word2vect.fit(analyzer=et.terms)
+m = Word2Vec().fit(analyzer=et.terms)
 
 
 '''
