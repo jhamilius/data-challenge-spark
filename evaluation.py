@@ -101,7 +101,7 @@ print "features selection"
 df = pd.DataFrame(tmp2) # transformer la liste de paires en dataframe   
 df = df.sort_values(by=[1], ascending=False) # trier le dataframe par valeur de chi2 descendante
 #PARAM
-nbfeat = 25000 #len(col_index)
+nbfeat = 100000 #len(col_index)
 col_index = df.head(nbfeat)[0].values
 print "- nb total de col : "+str(len(df))
 print "- poids total des chi2 :"+str(df[1].sum(axis=0))
