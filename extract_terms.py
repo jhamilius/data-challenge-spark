@@ -18,7 +18,7 @@ def terms(doc):
 
 	finder2 = BigramCollocationFinder.from_words(Terms)
 	finder2.apply_freq_filter(3)
-	bigrams = finder2.nbest(bigram_measures.pmi, 2000)
+	bigrams = finder2.nbest(bigram_measures.pmi, 200)
 
 	# finder3 = TrigramCollocationFinder.from_words(Terms)
 	# finder3.apply_freq_filter(3)

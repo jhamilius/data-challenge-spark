@@ -89,15 +89,6 @@ bY=sc.broadcast(Y) #broadcast the class variable (in order to create labeled poi
 # the number of features is the columns of the matrix
 #we need this information to convert to vectors and label point the coordinate data
 cols=sc.broadcast(len(m.get_feature_names())) 
-# rows=sc.broadcast(len(Y))
-
-# comb2 = (lambda x,y : np.vstack([np.array(x),np.array(y)]))
-# tmp2=ttodp.map(lambda x : (x[2],(x[0],x[1]))).aggregateByKey([0,0],comb2,comb2).map(partial(toVector, cols=rows)).map(lambda x : (x[0],chi2(np.array([x[1],x[1]]).T,np.array(bY.value)))).map(lambda x: (x[0],x[1][0][1])).collect()
-
-# df= pd.DataFrame(tmp2)
-# df_s = df.sort_values(by=[1])
-# dff = df_s.truncate(before=10) #les 10 plus gros ID
-
 
 
 
