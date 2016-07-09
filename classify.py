@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import loadFiles as lf
 import preProcess as pp
 from sklearn.feature_selection import chi2
@@ -101,7 +103,7 @@ print "features selection"
 df = pd.DataFrame(tmp2) # transformer la liste de paires en dataframe   
 df = df.sort_values(by=[1], ascending=False) # trier le dataframe par valeur de chi2 descendante
 #PARAM
-nbfeat = 100000 #len(col_index)
+nbfeat = 500000 #len(col_index)
 col_index = df.head(nbfeat)[0].values
 print "- nb total de col : "+str(len(df))
 print "- poids total des chi2 :"+str(df[1].sum(axis=0))
@@ -116,29 +118,20 @@ print "number of features"+str(cols.value)
 #convert to labeled point in parallel
 tmpLB=tmp.map(partial(createLabeledPoint,cSize=cols,classes=bY)) 
 
-
 print "training the machine learning algorithm"
-model_trained = model = LogisticRegressionWithLBFGS.train(tmpLB, iterations=100, initialWeights=None,regParam=0.01, regType='l2', intercept=True, corrections=10, tolerance=0.0001, validateData=True, numClasses=2) # train a naive bayes model
+
+model_trained = LogisticRegressionWithLBFGS.train(tmpLB, iterations=150, initialWeights=None,regParam=0.01, regType='l2', intercept=True, corrections=10, tolerance=0.0001, validateData=True, numClasses=2)
 mtBR=sc.broadcast(model_trained)
-​
 print "loading unlabeled data"
 test,names=lf.loadUknown(testF) #load the unlabelled data . test : text per document. names : the respective file names
 namesb=sc.broadcast(names) # broadcast the file names as we will need them for predictions
-​
 md=sc.broadcast(m) # broadcast the fitted model of the vecotrizer 
 datadt=sc.broadcast(test) # broadcast the unlabeled data so that we may call the vectorizer in same manner
-​
-​
-​
 #apply the vectorization in a random worker
 print "transforming unlabelled data"
 test_data=sc.parallelize(ex,numSlices=16).filter(lambda x: x!=0).map(partial(computeTest, model=md,data=datadt)).collect()
-​
-​
 datadt.unpersist()
 print "convert data to non-compressed vector and predict the class"
-​
-​
 #Steps:
 #distribute the coordinate tf-idf of the transformed unlabelled data
 #organize the coordinate by row
@@ -147,7 +140,6 @@ print "convert data to non-compressed vector and predict the class"
 #apply for each vector the prediction and return the prediction along with the name of the file for that prediction
 #(predict does both of the two last steps)
 test_data_d=sc.parallelize(test_data[0],numSlices=512).map(lambda x: (x[1],[(x[0],x[2])])).aggregateByKey([],comb,comb).map(partial(predict,cSize=cols,model=mtBR))
-​
 predictions=test_data_d.collect() # get all the (filename, prediction) tuples 
 print "writing prediction"
 #write the predictions to a file
