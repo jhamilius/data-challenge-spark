@@ -17,8 +17,8 @@ def terms(doc):
 	trigram_measures = nltk.collocations.TrigramAssocMeasures()
 
 	finder2 = BigramCollocationFinder.from_words(Terms)
-	# finder2.apply_freq_filter(1)
-	bigrams = finder2.nbest(bigram_measures.pmi, 200)
+	finder2.apply_freq_filter(3)
+	bigrams = finder2.nbest(bigram_measures.pmi, 2000)
 
 	# finder3 = TrigramCollocationFinder.from_words(Terms)
 	# finder3.apply_freq_filter(3)

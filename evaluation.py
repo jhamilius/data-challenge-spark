@@ -39,10 +39,10 @@ data,Y=lf.loadLabeled(trainF)
 
 print "preprocessing"
 pp.proc(data) #clean up the data from  number, html tags, punctuations (except for "?!." ...."?!" are replaced by "."
-# m = TfidfVectorizer(analyzer=et.terms) # m is a compressed matrix with the tfidf matrix the terms are extracted with our own custom function 
+m = TfidfVectorizer(analyzer=et.terms) # m is a compressed matrix with the tfidf matrix the terms are extracted with our own custom function 
 
 # word2vec = Word2Vec()
-m = Word2Vec().fit(analyzer=et.terms)
+# m = Word2Vec().fit(analyzer=et.terms)
 
 
 '''
@@ -109,9 +109,11 @@ tmpLB=tmp.map(partial(createLabeledPoint,cSize=cols,classes=bY))
 
 
 print "splitting the data"
-train, test = tmpLB.randomSplit([0.6, 0.4], seed = 0)
+train, test = tmpLB.randomSplit([0.75, 0.25], seed = 0)
 print "training the machine learning algorithm"
-model = NaiveBayes.train(train, 1.0)
+model = LogisticRegressionWithLBFGS.train(train, iterations=100, initialWeights=None, 
+                                         regParam=0.01, regType='l2', intercept=True, 
+                                         corrections=10, tolerance=0.0001, validateData=True, numClasses=2)
 # model = SVMWithSGD.train(train, iterations=150, step=1.0, regParam=0.01, miniBatchFraction=1.0, initialWeights=None, regType='l2', intercept=True, validateData=True, convergenceTol=0.001)
 print "retrieving predictions and evaluating"
 predictionAndLabel = test.map(lambda p : (model.predict(p.features), p.label))
