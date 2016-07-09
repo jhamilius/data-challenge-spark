@@ -101,7 +101,7 @@ print "features selection"
 df = pd.DataFrame(tmp2) # transformer la liste de paires en dataframe   
 df = df.sort_values(by=[1], ascending=False) # trier le dataframe par valeur de chi2 descendante
 #PARAM
-nbfeat = 100000 #len(col_index)
+nbfeat = 500000 #len(col_index)
 col_index = df.head(nbfeat)[0].values
 print "- nb total de col : "+str(len(df))
 print "- poids total des chi2 :"+str(df[1].sum(axis=0))
@@ -121,7 +121,7 @@ tmpLB=tmp.map(partial(createLabeledPoint,cSize=cols,classes=bY))
 print "splitting the data"
 train, test = tmpLB.randomSplit([0.6, 0.4], seed = 0)
 print "training the machine learning algorithm"
-model = LogisticRegressionWithLBFGS.train(train, iterations=100, initialWeights=None,regParam=0.01, regType='l2', intercept=True, corrections=10, tolerance=0.0001, validateData=True, numClasses=2)
+model = LogisticRegressionWithLBFGS.train(train, iterations=150, initialWeights=None,regParam=0.01, regType='l2', intercept=True, corrections=10, tolerance=0.0001, validateData=True, numClasses=2)
 
 
 

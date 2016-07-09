@@ -14,11 +14,11 @@ def terms(doc):
 
 	#Adding Bigrams and Trigrams
 	bigram_measures = nltk.collocations.BigramAssocMeasures()
-	trigram_measures = nltk.collocations.TrigramAssocMeasures()
+	# trigram_measures = nltk.collocations.TrigramAssocMeasures()
 
 	finder2 = BigramCollocationFinder.from_words(Terms)
 	finder2.apply_freq_filter(3)
-	bigrams = finder2.nbest(bigram_measures.pmi, 200)
+	bigrams = finder2.nbest(bigram_measures.pmi, 20)
 
 	# finder3 = TrigramCollocationFinder.from_words(Terms)
 	# finder3.apply_freq_filter(3)
