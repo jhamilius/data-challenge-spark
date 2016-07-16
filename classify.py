@@ -17,9 +17,20 @@ from pyspark import SparkContext
 from pyspark import SparkFiles
 from functools import partial
 from pyspark.ml.feature import NGram
+from pyspark.mllib.feature import Word2Vec
 
+
+#a function that transforms the coordinate data and applies predict
+#this is an alternative approach so that we may do one call to the executors
+def predict(row_coord,cSize,model):
+	vector_dict={}
+	for w in row_coord[1]:
+		vector_dict[int(w[1])]=w[0]
+	return (row_coord[0], model.value.predict(SparseVector(cSize.value,vector_dict)))
 
 trainF="./data/train" #the path to where the train data is
+testF="./data/test" # the path to the unlabelled data 
+saveF="./predictions.txt" #where to save the predictions
 
 sc = SparkContext(appName=" \--(o_o)--/ ")  #initialize the spark context
 
@@ -103,7 +114,7 @@ print "features selection"
 df = pd.DataFrame(tmp2) # transformer la liste de paires en dataframe   
 df = df.sort_values(by=[1], ascending=False) # trier le dataframe par valeur de chi2 descendante
 #PARAM
-nbfeat = 500000 #len(col_index)
+nbfeat = 100000 #len(col_index)
 col_index = df.head(nbfeat)[0].values
 print "- nb total de col : "+str(len(df))
 print "- poids total des chi2 :"+str(df[1].sum(axis=0))
@@ -120,7 +131,7 @@ tmpLB=tmp.map(partial(createLabeledPoint,cSize=cols,classes=bY))
 
 print "training the machine learning algorithm"
 
-model_trained = LogisticRegressionWithLBFGS.train(tmpLB, iterations=150, initialWeights=None,regParam=0.01, regType='l2', intercept=True, corrections=10, tolerance=0.0001, validateData=True, numClasses=2)
+model_trained = LogisticRegressionWithLBFGS.train(tmpLB, iterations=100, initialWeights=None,regParam=0.01, regType='l2', intercept=True, corrections=10, tolerance=0.0001, validateData=True, numClasses=2)
 mtBR=sc.broadcast(model_trained)
 print "loading unlabeled data"
 test,names=lf.loadUknown(testF) #load the unlabelled data . test : text per document. names : the respective file names
