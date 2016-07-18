@@ -1,8 +1,5 @@
-# data-challenge-spark
+# Data Challenge Spark DSSP4, 07/16
 
-<hr>
-
-Repository for data-challenge files
 
 ## How to execute on cluster
 
